@@ -89,17 +89,30 @@ def to_dimacs(clauses):
         result += "0\n"
     return result
 
+def output_cnf(stream):
+    hb = happens_before()
+    ovpo = one_var_per_order()
+    mht = must_hit_tuples()
+
+    num_clauses = len(hb) + len(ovpo) + len(mht)
+    num_vars = tvid(len(gen_d_tuples()) - 1, PATHS - 1)
+
+    stream.write("p cnf " + str(num_vars) + " " + str(num_clauses) + "\n")
+    stream.write(to_dimacs(ovpo))
+    stream.write(to_dimacs(mht))
+    stream.write(to_dimacs(hb))
 
 if __name__ == "__main__":
-    with open("reduction.cnf", "w+") as cnf:
-        hb = happens_before()
-        ovpo = one_var_per_order()
-        mht = must_hit_tuples()
+    import sys
+    import argparse
 
-        num_clauses = len(hb) + len(ovpo) + len(mht)
-        num_vars = tvid(len(gen_d_tuples()) - 1, PATHS - 1)
+    parser = argparse.ArgumentParser(description="Program for generating the CNF-SAT formula")
+    parser.add_argument("file", nargs="?", help="Optional file to write output to", default=None)
+    args = parser.parse_args()
 
-        cnf.write("p cnf " + str(num_vars) + " " + str(num_clauses) + "\n")
-        cnf.write(to_dimacs(ovpo))
-        cnf.write(to_dimacs(mht))
-        cnf.write(to_dimacs(hb))
+    if not args.file is None:
+        with open(args.file, "w+") as cnf:
+            output_cnf(cnf)
+    else:
+        output_cnf(sys.stdout)
+        sys.stdout.close()
