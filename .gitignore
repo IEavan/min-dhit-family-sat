@@ -1,0 +1,4 @@
+.*.swp
+*.cnf
+result
+__pycache__
