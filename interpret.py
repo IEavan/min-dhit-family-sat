@@ -1,9 +1,4 @@
-VERTICES = [0,1,2,3,4]
-EDGES = [(0,2),(0,3),(1,3),(2,4),(3,4)]
-PATHS = 2
-N = len(VERTICES)
-D = 2
-
+from params import *
 
 def inverse_vid(num):
     num -= 1
@@ -64,7 +59,17 @@ if __name__ == "__main__":
     if args.result != None:
         with open(args.result, "r") as f:
             assignment = f.readlines()[-1]
+
+            if assignment == "s UNSATISFIABLE\n":
+                print("UNSATISFIABLE")
+                sys.exit()
+
             process(text2vars(assignment), args)
     else:
         assignment = sys.stdin.readlines()[-1]
+
+        if assignment == "s UNSATISFIABLE\n":
+            print("UNSATISFIABLE")
+            sys.exit()
+
         process(text2vars(assignment), args)
