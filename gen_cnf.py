@@ -1,3 +1,5 @@
+import itertools
+
 VERTICES = [0,1,2,3,4]
 EDGES = [(0,2),(0,3),(1,3),(2,4),(3,4)]
 PATHS = 2
@@ -44,8 +46,27 @@ def one_var_per_order():
     return clauses
 
 def gen_d_tuples():
-    #TODO figure out how to get all d-tuples
-    return [(0,1),(0,2),(0,3),(0,4),(1,0),(1,2),(1,3),(1,4),(2,1),(2,3),(2,4),(3,2),(3,4)]
+    dtuples = []
+    for dtuple in itertools.permutations(VERTICES, D):
+        if is_admissable(dtuple):
+            dtuples.append(dtuple)
+    return dtuples
+
+def is_admissable(dtuple):
+    illegal_vertices = []
+    for v in dtuple:
+        if not v in illegal_vertices:
+            add_predecessors(v, illegal_vertices)
+        else:
+            return False
+    return True
+
+def add_predecessors(vertex, illegal_vertices):
+    incoming_edges = [edge for edge in EDGES if edge[1] == vertex]
+    for edge in incoming_edges:
+        if not edge[0] in illegal_vertices:
+            illegal_vertices.append(edge[0])
+            add_predecessors(edge[0], illegal_vertices)
 
 def must_hit_tuples():
     clauses = []
