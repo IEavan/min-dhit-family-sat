@@ -62,7 +62,7 @@ if __name__ == "__main__":
     parser.add_argument("result", nargs = "?", default = None,
             help="Glucose output with the model flag set")
     parser.add_argument("graph", help="Graph definition file")
-    parser.add_argument("-l", "--linearizations", type=int, metavar="L",
+    parser.add_argument("-l", "--linearizations", type=int, metavar="L", required=True,
             help="Show given number of linearizations chosen by glucose")
     parser.add_argument("-v", "--vars", help="Show variables in their original notation",
                         action="store_true")
@@ -78,5 +78,7 @@ if __name__ == "__main__":
     if assignment == "s UNSATISFIABLE\n":
         print("UNSATISFIABLE")
         sys.exit()
+    else:
+        print("SATISFIABLE")
 
     process(text2vars(assignment, args, graph), args)

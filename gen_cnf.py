@@ -5,22 +5,22 @@ from graphs import SimpleGraph
 def vvid(linearization, vertex, order, graph):
     return linearization * graph.N**2 + vertex * graph.N + order + 1
 
-def tvid(dtuple, linearization, args, graph):
-    return args.linearizations * graph.N**2 + \
-           args.linearizations * dtuple + linearization + 1
+def tvid(dtuple, linearization, linearizations, graph):
+    return linearizations * graph.N**2 + \
+           linearizations * dtuple + linearization + 1
 
-def happens_before(args, graph):
+def happens_before(linearizations, graph):
     clauses = []
-    for p in range(args.linearizations):
+    for p in range(linearizations):
         for u,v in graph.edge_list():
             for i in range(graph.N - 1):
                 for j in range(i + 1, graph.N):
                     clauses.append([-vvid(p, v, i, graph), -vvid(p, u, j, graph)])
     return clauses
 
-def one_var_per_order(args, graph):
+def one_var_per_order(linearizations, graph):
     clauses = []
-    for p in range(args.linearizations):
+    for p in range(linearizations):
         # Encode at least one
         for i in range(graph.N):
             clause = [vvid(p, v, i, graph) for v in graph.vertices]
@@ -42,9 +42,9 @@ def one_var_per_order(args, graph):
                     clauses.append([-vvid(p, v, i, graph), -vvid(p, v, j, graph)])
     return clauses
 
-def gen_d_tuples(args, graph):
+def gen_d_tuples(depth, graph):
     dtuples = []
-    for dtuple in itertools.permutations(graph.vertices, args.depth):
+    for dtuple in itertools.permutations(graph.vertices, depth):
         if is_admissable(dtuple, graph):
             dtuples.append(dtuple)
     return dtuples
@@ -65,20 +65,20 @@ def add_predecessors(vertex, illegal_vertices, graph):
             illegal_vertices.append(parent)
             add_predecessors(parent, illegal_vertices, graph)
 
-def must_hit_tuples(args, graph):
+def must_hit_tuples(linearizations, depth, graph):
     clauses = []
-    for t, dtuple in enumerate(gen_d_tuples(args, graph)):
-        must_hit_t = [tvid(t, p, args, graph) for p in range(args.linearizations)]
+    for t, dtuple in enumerate(gen_d_tuples(depth, graph)):
+        must_hit_t = [tvid(t, p, linearizations, graph) for p in range(linearizations)]
         clauses.append(must_hit_t)
-        for p in range(args.linearizations):
-            start_clause = [vvid(p, dtuple[0], i, graph) for i in range(graph.N - args.depth + 1)]
-            start_clause.append(-tvid(t, p, args, graph))
+        for p in range(linearizations):
+            start_clause = [vvid(p, dtuple[0], i, graph) for i in range(graph.N - depth + 1)]
+            start_clause.append(-tvid(t, p, linearizations, graph))
             clauses.append(start_clause)
-            for k in range(args.depth - 1):
-                for i in range(k, graph.N - args.depth + k + 1):
-                    end_clause = [vvid(p, dtuple[k + 1], j, graph) for j in range(i + 1, graph.N - args.depth + k + 2)]
+            for k in range(depth - 1):
+                for i in range(k, graph.N - depth + k + 1):
+                    end_clause = [vvid(p, dtuple[k + 1], j, graph) for j in range(i + 1, graph.N - depth + k + 2)]
                     end_clause.append(-vvid(p, dtuple[k], i, graph))
-                    end_clause.append(-tvid(t, p, args, graph))
+                    end_clause.append(-tvid(t, p, linearizations, graph))
                     clauses.append(end_clause)
     return clauses
 
@@ -90,13 +90,13 @@ def to_dimacs(clauses):
         result += "0\n"
     return result
 
-def output_cnf(stream, args, graph):
-    hb = happens_before(args, graph)
-    ovpo = one_var_per_order(args, graph)
-    mht = must_hit_tuples(args, graph)
+def output_cnf(stream, linearizations, depth, graph):
+    hb = happens_before(linearizations, graph)
+    ovpo = one_var_per_order(linearizations, graph)
+    mht = must_hit_tuples(linearizations, depth, graph)
 
     num_clauses = len(hb) + len(ovpo) + len(mht)
-    num_vars = tvid(len(gen_d_tuples(args, graph)) - 1, args.linearizations - 1, args, graph)
+    num_vars = tvid(len(gen_d_tuples(depth, graph)) - 1, linearizations - 1, linearizations, graph)
 
     stream.write("p cnf " + str(num_vars) + " " + str(num_clauses) + "\n")
     stream.write(to_dimacs(ovpo))
@@ -125,7 +125,7 @@ if __name__ == "__main__":
 
     if not args.output_file is None:
         with open(args.output_file, "w+") as cnf:
-            output_cnf(cnf, args, graph)
+            output_cnf(cnf, args.linearizations, args.depth, graph)
     else:
-        output_cnf(sys.stdout, args, graph)
+        output_cnf(sys.stdout, args.linearizations, args.depth, graph)
         sys.stdout.close()
