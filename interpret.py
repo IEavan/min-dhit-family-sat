@@ -1,44 +1,44 @@
 from graphs import SimpleGraph
 
-def inverse_vid(num, args, graph):
+def inverse_vid(num, linearizations, graph):
     num -= 1
-    if num < args.linearizations * graph.N**2:
+    if num < linearizations * graph.N**2:
         path = num // graph.N**2
         vertex = (num % graph.N**2) // graph.N
         order = (num % graph.N)
         return path, vertex, order
     else:
-        num -= args.linearizations * graph.N**2
-        dtuple = num // args.linearizations
-        path = (num % args.linearizations)
+        num -= linearizations * graph.N**2
+        dtuple = num // linearizations
+        path = (num % linearizations)
         return dtuple, path
 
-def text2vars(line, args, graph):
+def text2vars(line, linearizations, graph):
     variables = []
     line = line.split(" ")[1:]
     for var in line:
         if int(var) > 0:
-            variables.append(inverse_vid(int(var), args, graph))
+            variables.append(inverse_vid(int(var), linearizations, graph))
     return variables
 
-def get_linearizations(lin_vars, args):
-    linearizations = []
-    for path in range(args.linearizations):
+def get_linearizations(lin_vars, linearizations, graph):
+    lins = []
+    for path in range(linearizations):
         path_vars = [var for var in lin_vars if var[0] == path]
         lin = []
         for i in range(graph.N):
             for pv in path_vars:
                 if pv[2] == i:
                     lin.append(pv[1])
-        linearizations.append(lin)
-    return linearizations
+        lins.append(lin)
+    return lins
 
 def split_vars(variables):
     lin_vars = [var for var in variables if len(var) == 3]
     dtuple_vars = [var for var in variables if len(var) == 2]
     return lin_vars, dtuple_vars
 
-def process(variables, args):
+def process(variables, args, graphs):
     lin_vars, dtuple_vars = split_vars(variables)
 
     if args.vars:
@@ -50,7 +50,7 @@ def process(variables, args):
             print(dv)
 
     if args.linearizations:
-        for i, linearization in enumerate(get_linearizations(lin_vars, args)):
+        for i, linearization in enumerate(get_linearizations(lin_vars, args.linearizations, graph)):
             print("Linearization {}:  {}".format(i + 1, linearization))
 
 if __name__ == "__main__":

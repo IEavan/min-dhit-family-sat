@@ -46,6 +46,7 @@ class SimpleGraph():
         for vertex in vertices:
             if vertex not in self.vertices:
                 self.vertices.append(vertex)
+                self.vertices += 1
 
     def add_edges(self, edges):
         for edge in edges:
@@ -56,6 +57,7 @@ class SimpleGraph():
             if not head_vertex in self.outgoing_edges[tail_vertex]:
                 self.outgoing_edges[tail_vertex].append(head_vertex)
                 self.incoming_edges[head_vertex].append(tail_vertex)
+                self.M += 1
 
     def save(self, filename):
         """ Write out the graph in the trivial graph format """
