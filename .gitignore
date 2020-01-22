@@ -2,3 +2,4 @@
 *.cnf
 result
 __pycache__
+*.dot

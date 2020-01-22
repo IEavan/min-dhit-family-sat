@@ -4,7 +4,8 @@ import interpret
 import io
 import subprocess
 
-GLUCOSE = "/home/eavan/Downloads/glucose-syrup-4.1/parallel/glucose-syrup_static"
+GLUCOSE = "/home/eavan/glucose-syrup-4.1/parallel/glucose-syrup_static"
+
 
 def exp_search(graph, depth):
     linearizations = 1
@@ -23,7 +24,7 @@ def exp_search(graph, depth):
         middle = int((lower_bound + upper_bound) / 2)
         print("Testing L = {}".format(middle))
         sat, lins = run(graph, middle, depth)
-        
+
         if sat:
             upper_bound = middle
             min_lins = lins
@@ -34,6 +35,7 @@ def exp_search(graph, depth):
 
     return min_lins
 
+
 def run(graph, linearizations, depth):
     """ Run reduction through glucose and interpret """
 
@@ -43,7 +45,7 @@ def run(graph, linearizations, depth):
         cnf = reduction.getvalue()
 
     proc = subprocess.Popen([GLUCOSE, "-model"], stdin=subprocess.PIPE,
-                                                 stdout=subprocess.PIPE)
+                            stdout=subprocess.PIPE)
     sat_result = proc.communicate(cnf.encode("utf-8"))[0].decode("utf-8")
     assignment = sat_result.splitlines()[-1]
 
@@ -62,7 +64,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("graph_file", help="Graph definition file")
     parser.add_argument("-d", "--depth", type=int, metavar="D", required=True,
-            help="Given bug depth to test")
+                        help="Given bug depth to test")
 
     args = parser.parse_args()
     graph = graphs.SimpleGraph(args.graph_file)

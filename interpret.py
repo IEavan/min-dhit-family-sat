@@ -1,5 +1,6 @@
 from graphs import SimpleGraph
 
+
 def inverse_vid(num, linearizations, graph):
     num -= 1
     if num < linearizations * graph.N**2:
@@ -13,6 +14,7 @@ def inverse_vid(num, linearizations, graph):
         path = (num % linearizations)
         return dtuple, path
 
+
 def text2vars(line, linearizations, graph):
     variables = []
     line = line.split(" ")[1:]
@@ -20,6 +22,7 @@ def text2vars(line, linearizations, graph):
         if int(var) > 0:
             variables.append(inverse_vid(int(var), linearizations, graph))
     return variables
+
 
 def get_linearizations(lin_vars, linearizations, graph):
     lins = []
@@ -33,10 +36,12 @@ def get_linearizations(lin_vars, linearizations, graph):
         lins.append(lin)
     return lins
 
+
 def split_vars(variables):
     lin_vars = [var for var in variables if len(var) == 3]
     dtuple_vars = [var for var in variables if len(var) == 2]
     return lin_vars, dtuple_vars
+
 
 def process(variables, args, graphs):
     lin_vars, dtuple_vars = split_vars(variables)
@@ -53,17 +58,18 @@ def process(variables, args, graphs):
         for i, linearization in enumerate(get_linearizations(lin_vars, args.linearizations, graph)):
             print("Linearization {}:  {}".format(i + 1, linearization))
 
+
 if __name__ == "__main__":
     import sys
     import argparse
 
-    parser = argparse.ArgumentParser(description = """A program for interpreting
+    parser = argparse.ArgumentParser(description="""A program for interpreting
                                     the variable assigmenments made by glucose""")
-    parser.add_argument("result", nargs = "?", default = None,
-            help="Glucose output with the model flag set")
+    parser.add_argument("result", nargs="?", default=None,
+                        help="Glucose output with the model flag set")
     parser.add_argument("graph", help="Graph definition file")
     parser.add_argument("-l", "--linearizations", type=int, metavar="L", required=True,
-            help="Show given number of linearizations chosen by glucose")
+                        help="Show given number of linearizations chosen by glucose")
     parser.add_argument("-v", "--vars", help="Show variables in their original notation",
                         action="store_true")
     args = parser.parse_args()
