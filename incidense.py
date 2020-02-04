@@ -3,6 +3,7 @@ from networkx.algorithms import approximation
 import matplotlib.pyplot as plt
 import sys
 import numpy as np
+from interpret import inverse_vid_N
 
 
 def read_dimacs(stream):
@@ -10,7 +11,7 @@ def read_dimacs(stream):
     clauses = []
     for clause_line in stream.readlines():
         variables = clause_line.split(" ")
-        variables = [int(v) for v in variables if v != "0"]
+        variables = [int(v) for v in variables if v.strip() != "0"]
         clauses.append(variables)
     return clauses
 
@@ -42,7 +43,8 @@ def show_props(graph):
     cluster_ceof = approximation.clustering_coefficient.average_clustering(graph)
     print("Average Clustering Coefficient: {}".format(cluster_ceof))
     print("Is Acyclic: {}".format(nx.is_forest(graph)))
-    print("Max degree: {}".format(max([d for n, d in graph.degree()])))
+    node, degree = max([(n, d) for n, d in graph.degree()], key=lambda x: x[1])
+    print("Max degree: {}".format(degree))
     # diameter = nx.algorithms.distance_measures.diameter(graph)
     # print("Diameter: {}".format(diameter))
 
