@@ -3,7 +3,6 @@ from networkx.algorithms import approximation
 import matplotlib.pyplot as plt
 import sys
 import numpy as np
-from interpret import inverse_vid_N
 
 
 def read_dimacs(stream):
