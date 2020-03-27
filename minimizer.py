@@ -1,10 +1,11 @@
+import sys
 import graphs
 import gen_cnf
 import interpret
 import io
 import subprocess
 
-GLUCOSE = "/home/eavan/glucose-syrup-4.1/parallel/glucose-syrup_static"
+GLUCOSE = "/home/eavan/Downloads/old/glucose-syrup-4.1/parallel/glucose-syrup_static"
 
 
 def exp_search(graph, depth):
@@ -62,7 +63,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("graph_file", help="Graph definition file")
+    parser.add_argument("-g", "--graph_file", default=sys.stdin, help="Graph definition file")
     parser.add_argument("-d", "--depth", type=int, metavar="D", required=True,
                         help="Given bug depth to test")
 

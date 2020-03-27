@@ -42,15 +42,15 @@ class SimpleGraph():
             for head_vertex in adjacent_vertices:
                 yield tail_vertex, head_vertex
 
-    def add_vertices(self, vertices):
-        for vertex in vertices:
+    def add_vertices(self, new_vertices):
+        for vertex in new_vertices:
             if vertex not in self.vertices:
                 self.vertices.append(vertex)
-                self.vertices += 1
+                self.N += 1
 
-    def add_edges(self, edges):
-        for edge in edges:
-            tail_vertex, head_vertex = edge
+    def add_edges(self, new_edges):
+        for edge in new_edges:
+            head_vertex, tail_vertex = edge
             if not tail_vertex in self.vertices or not head_vertex in self.vertices:
                 raise ValueError("Edge ({}, {}) contains undefined vertices".format(tail_vertex, head_vertex))
 
@@ -59,16 +59,23 @@ class SimpleGraph():
                 self.incoming_edges[head_vertex].append(tail_vertex)
                 self.M += 1
 
+    def to_tgf_string(self):
+        result = ""
+        for vertex in self.vertices:
+            result += "{}\n".format(vertex)
+        result += "#\n"
+        for tail_vertex, adjacent_vertices in self.outgoing_edges.items():
+            for head_vertex in adjacent_vertices:
+                result += "{} {}\n".format(head_vertex, tail_vertex)
+
+        return result
+
+
     def save(self, filename):
         """ Write out the graph in the trivial graph format """
 
         with open(filename, "w+") as f:
-            for vertex in self.vertices:
-                f.write("{}\n".format(vertex))
-            f.write("#\n")
-            for tail_vertex, adjacent_vertices in self.outgoing_edges.items():
-                for head_vertex in adjacent_vertices:
-                    f.write("{} {}\n".format(head_vertex, tail_vertex))
+            f.write(self.to_tgf_string())
 
 
 def random_dag(num_vertices, edge_probability=0.5):
@@ -83,3 +90,23 @@ def random_dag(num_vertices, edge_probability=0.5):
 
     dag.add_edges(edges)
     return dag
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--type", type=str, help="Type of graph to generate")
+    parser.add_argument("-n", "--nodes", type=int, help="Number of nodes")
+
+    args = parser.parse_args()
+    
+    if args.type == "chains":
+        graph = SimpleGraph()
+        chain_length = args.nodes // 2
+        for chain in [0,1]:
+            vertices = list(range(chain * chain_length, (chain + 1) * chain_length))
+            graph.add_vertices(vertices)
+            graph.add_edges(zip(vertices[:-1],vertices[1:]))
+
+    sys.stdout.write(graph.to_tgf_string())
+    sys.stdout.flush()
